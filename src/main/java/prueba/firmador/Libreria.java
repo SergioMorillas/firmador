@@ -8,9 +8,11 @@ import java.security.Key;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.PrivateKey;
-import java.util.Base64;
-import java.util.Enumeration;
 import java.util.*;
+
+import com.github.jsonldjava.utils.JsonUtils;
+
+import io.jsonwebtoken.Jwts;
 
 public class Libreria {
     /**
@@ -69,8 +71,7 @@ public class Libreria {
         return lista;
     }
 
-    public static Key clave(String alias, String contrasena, String rutaCert) {
-        File cert = new File(rutaCert);
+    public static Key clave(String alias, String contrasena, File cert) {
         Key k = null;
         try (FileInputStream fis = new FileInputStream(cert)) {
             KeyStore ks = KeyStore.getInstance("PKCS12");
@@ -97,7 +98,66 @@ public class Libreria {
         return k;
     }
 
-    public static void main(String[] args) {
-        clave("1", "prueba123", "./cert1.p12"); // Null pointer si el alias no existe en el getEncoded();
+    public static Key clave(String alias, String contrasena) {
+        Key k = null;
+        try {
+            KeyStore ks = certificadosSistema();
+            ks.load(null, null);
+            Enumeration<String> enumer = ks.aliases();
+            while (enumer.hasMoreElements()) {
+                String s = enumer.nextElement();
+                System.out.println(s);
+                k = ks.getKey(alias, contrasena.toCharArray());
+                k.getAlgorithm();
+                if (k instanceof PrivateKey) {
+                    k = (PrivateKey) k;
+                    System.out.println("Clave privada: " + Base64.getEncoder().encodeToString(k.getEncoded()));
+                } else {
+                    return null;
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return k;
+    }
+
+    public static String tratarJsonFichero(File json) {
+        String str = null;
+        try (FileInputStream fis = new FileInputStream(json)) {
+            String textJson = new String(fis.readAllBytes());
+            Object jsonObject = JsonUtils.fromString(textJson);
+            str = JsonUtils.toPrettyString(jsonObject);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+        return str;
+    }
+
+    public static String tratarJsonTexto(String json) {
+        String str = null;
+        try (FileInputStream fis = new FileInputStream(json)) {
+            Object jsonObject = JsonUtils.fromString(json);
+            str = JsonUtils.toPrettyString(jsonObject);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+
+        return str;
+    }
+
+    public static String firmar(Key clave, String json) {
+        String hb = Jwts.builder()
+                .header()
+                    .add("alg", clave.getAlgorithm())
+                    .add("b64", false)
+                    .add("crit", "b64")
+                .and()
+                    //.content(json)
+                    .signWith(clave)
+                .compact();
+        return hb;
+
     }
 }
