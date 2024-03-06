@@ -17,13 +17,27 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
+    <jjwt-vrs>0.12.5</jjwt-vrs>
   </properties>
 
   <dependencies>
+
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt</artifactId>
+      <version>${jjwt-vrs}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.bouncycastle.bcpkix-jdk15on.1.57.org.bouncycastle</groupId>
       <artifactId>bcpkix-jdk15on</artifactId>
       <version>1.57</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.jsonld-java</groupId>
+      <artifactId>jsonld-java</artifactId>
+      <version>0.13.5</version>
     </dependency>
   </dependencies>
 
@@ -73,9 +87,45 @@
           <artifactId>maven-project-info-reports-plugin</artifactId>
           <version>3.0.0</version>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId><!--Este
+          plugin hace que pueda añadir las dependencias en mi jar-->
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>3.2.4</version>
+          <executions>
+            <execution>
+              <phase>package</phase>
+              <goals>
+                <goal>shade</goal>
+              </goals>
+              <configuration>
+                <filters> <!--Tenemos
+                  que utilizar este filtro para evitar la excepcion: Invalid signature file digest
+                  for Manifest main attributes -->
+                  <filter>
+                    <artifact>*:*</artifact>
+                    <excludes>
+                      <exclude>META-INF/*.SF</exclude>
+                      <exclude>META-INF/*.DSA</exclude>
+                      <exclude>META-INF/*.RSA</exclude>
+                    </excludes>
+                  </filter>
+                </filters>
+                <transformers><!--Aquí
+                  le decimos que añada los recusos y le decimos la main class a ejecutar -->
+                  <transformer
+                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                    <mainClass>main.java.prueba.firmador.CrearJWT</mainClass>
+                  </transformer>
+                </transformers>
+                <archive>
+                </archive>
+              </configuration>
+            </execution>
+          </executions>
+
+        </plugin>
       </plugins>
     </pluginManagement>
   </build>
-
-
 </project>
