@@ -33,6 +33,7 @@ public class IntroducirDatos extends javax.swing.JFrame {
         btnIntroducirTexto = new javax.swing.JButton();
         btnFicheroExterno = new javax.swing.JButton();
         lblTexto = new javax.swing.JLabel();
+        btnFirmar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -60,6 +61,15 @@ public class IntroducirDatos extends javax.swing.JFrame {
         lblTexto.setForeground(new java.awt.Color(255, 255, 255));
         lblTexto.setText("¿Donde se encuentran los datos con los que quieres firmar el documento?");
 
+        btnFirmar.setText("Firmar");
+        btnFirmar.setEnabled(false);
+        btnFirmar.setPreferredSize(new java.awt.Dimension(220, 25));
+        btnFirmar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFirmarActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -79,6 +89,10 @@ public class IntroducirDatos extends javax.swing.JFrame {
                                 .addComponent(btnIntroducirTexto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(lblTexto))
                         .addContainerGap(183, Short.MAX_VALUE))))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnFirmar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(336, 336, 336))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -91,7 +105,9 @@ public class IntroducirDatos extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnIntroducirTexto, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnFicheroExterno, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(149, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 53, Short.MAX_VALUE)
+                .addComponent(btnFirmar, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(39, 39, 39))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -119,6 +135,10 @@ public class IntroducirDatos extends javax.swing.JFrame {
     private void btnFicheroExternoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFicheroExternoActionPerformed
 
     }//GEN-LAST:event_btnFicheroExternoActionPerformed
+
+    private void btnFirmarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFirmarActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnFirmarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -158,6 +178,7 @@ public class IntroducirDatos extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnFicheroExterno;
+    private javax.swing.JButton btnFirmar;
     private javax.swing.JButton btnIntroducirTexto;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel lblTexto;

@@ -15,8 +15,10 @@ import java.util.Enumeration;
  *
  */
 public class ObtenerClavePrivada {
+  
   public static void main(String[] args) throws IOException {
     File cert = new File("./cert.p12");
+
 
     try (FileInputStream fis = new FileInputStream(cert)) {
       KeyStore ks = KeyStore.getInstance("PKCS12");
@@ -50,6 +52,7 @@ public class ObtenerClavePrivada {
   }
 
   public static KeyStore getKeyStore() {
+    
     try {
       String osName = System.getProperty("os.name").toLowerCase();
       if (osName.contains("win")) {
