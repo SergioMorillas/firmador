@@ -1,14 +1,19 @@
 package prueba.firmador;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.security.MessageDigest;
-
+import java.security.NoSuchAlgorithmException;
 import java.io.File;
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.PrivateKey;
-import java.util.*;
+import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Enumeration;
 
 import com.github.jsonldjava.utils.JsonUtils;
 
@@ -55,6 +60,28 @@ public class Libreria {
     }
 
     public static ArrayList<String> comprobarAlias(KeyStore ks) {
+
+        Enumeration<String> enumer;
+        ArrayList<String> lista = new ArrayList<String>();
+
+        try {
+            ks.load(null, null);
+
+            enumer = ks.aliases();
+            while (enumer.hasMoreElements()) {
+                String s = enumer.nextElement();
+                lista.add(s);
+            }
+
+        } catch (KeyStoreException |IOException|NoSuchAlgorithmException|CertificateException e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
+
+    public static ArrayList<String> comprobarAlias(File cert) {
+        KeyStore ks = obtenerKeyStore(cert);
+
         Enumeration<String> enumer;
         ArrayList<String> lista = new ArrayList<String>();
 
@@ -150,14 +177,29 @@ public class Libreria {
     public static String firmar(Key clave, String json) {
         String hb = Jwts.builder()
                 .header()
-                    .add("alg", clave.getAlgorithm())
-                    .add("b64", false)
-                    .add("crit", "b64")
+                .add("alg", clave.getAlgorithm())
+                .add("b64", false)
+                .add("crit", "b64")
                 .and()
-                    //.content(json)
-                    .signWith(clave)
+                .content(json)
+                .signWith(clave)
                 .compact();
         return hb;
 
+    }
+
+    private static KeyStore obtenerKeyStore(File cert) {
+        KeyStore ks = null;
+        try (FileInputStream fis = new FileInputStream(cert)) {
+            ks = KeyStore.getInstance("PKCS12");
+            ks.load(fis, null);
+        } catch (FileNotFoundException ex) {
+
+        } catch (IOException ex) {
+
+        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException ex) {
+            System.err.println("Problemas con el certificado");
+        }
+        return ks;
     }
 }
