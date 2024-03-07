@@ -9,12 +9,27 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 
+/**
+ * Clase con la interfaz principal de la aplicación
+ */
 public class InterfazSeleccion extends javax.swing.JFrame {
+    private javax.swing.JButton btnAlmacen;
+    private javax.swing.JButton btnFichero;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JLabel lblTexto;
+    private javax.swing.JLabel lblTitulo;
 
+    /**
+     * Constructor vacio, es llamado por la función Main
+     */
     public InterfazSeleccion() {
         initComponents();
     }
 
+    /**
+     * Metodo utilizado para inicializar la interfaz gráfica, generar los action
+     * listeners y los elementos
+     */
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
@@ -27,14 +42,15 @@ public class InterfazSeleccion extends javax.swing.JFrame {
 
         jPanel1.setBackground(new java.awt.Color(102, 102, 102));
 
-        lblTitulo.setFont(new java.awt.Font("Dialog", 3, 36)); 
+        lblTitulo.setFont(new java.awt.Font("Dialog", 3, 36));
         lblTitulo.setText("Firmador");
-
+        // Generamos el boton para abrir los ficheros con el texto, el tamaño y la
+        // acción que llama al metodo «accionesBotonFichero»
         btnFichero.setText("En un fichero");
         btnFichero.setPreferredSize(new java.awt.Dimension(220, 25));
         btnFichero.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                accionesBotonFichero(evt);
+                accionesBotonFichero();
             }
         });
 
@@ -42,7 +58,7 @@ public class InterfazSeleccion extends javax.swing.JFrame {
         btnAlmacen.setPreferredSize(new java.awt.Dimension(220, 25));
         btnAlmacen.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                busquedaCertificadosSistema(evt);
+                busquedaCertificadosSistema();
             }
         });
 
@@ -119,15 +135,24 @@ public class InterfazSeleccion extends javax.swing.JFrame {
         pack();
     }
 
-    private void busquedaCertificadosSistema(java.awt.event.ActionEvent evt) {
+    /**
+     * Metodo que instancia la interfaz para seleccionar el alias de un certificado
+     * especifico y su contraseña en base a los certificados del sistema
+     */
+    private void busquedaCertificadosSistema() {
         DatosCertificado dc = new DatosCertificado(Libreria.certificadosSistema());
         dc.setVisible(true);
         this.dispose();
     }
 
-    private void accionesBotonFichero(java.awt.event.ActionEvent evt) {
+    /**
+     * Metodo que abre un panel de selección de ficheros del sistema, con un filtro
+     * para mostrar solo los certificados con la extension .p12 y genera la interfaz
+     * para introducir los datos del alias en el certificado especifico que buscamos
+     */
+    private void accionesBotonFichero() {
         JFileChooser chooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("Certificados", "p12");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Certificados", "p12"); // Creamos el filtro
         chooser.setFileFilter(filter);
         int returnVal = chooser.showOpenDialog(null);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -138,6 +163,11 @@ public class InterfazSeleccion extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Metodo main, seleccionamos el «Look and Feel» como FlatDarkLaf, o en caso de
+     * que no se pueda por algun problema del sistema añadiremos el tema Nimbus por
+     * defecto
+     */
     public static void main(String args[]) {
 
         try {
@@ -169,16 +199,11 @@ public class InterfazSeleccion extends javax.swing.JFrame {
                         null, ex);
             }
         }
+        //Metodo que ejecuta la interfaz como tal, para que sea visible y podamos trabajar sobre ella
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new InterfazSeleccion().setVisible(true);
             }
         });
     }
-
-    private javax.swing.JButton btnAlmacen;
-    private javax.swing.JButton btnFichero;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JLabel lblTexto;
-    private javax.swing.JLabel lblTitulo;
 }
