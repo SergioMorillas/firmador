@@ -42,6 +42,13 @@ public class Libreria {
         }
     }
 
+    /**
+     * Metodo que devuelve el KeyStore de los certificados del sistema, probado
+     * principalmente en Windows
+     * 
+     * @return El KeyStore por defecto que contiene los certificados del usuario del
+     *         sistema
+     */
     public static KeyStore certificadosSistema() {
         try {
             String osName = System.getProperty("os.name").toLowerCase();
@@ -59,6 +66,13 @@ public class Libreria {
         return null;
     }
 
+    /**
+     * Metodo que recibido un KeyStore comprueba los alias que contiene y los
+     * devuelve
+     * 
+     * @param ks El KeyStore del que puedes recibir los certificados
+     * @return Un ArrayList de Strings que contiene los alias de un almacen
+     */
     public static ArrayList<String> comprobarAlias(KeyStore ks) {
 
         Enumeration<String> enumer;
@@ -73,31 +87,36 @@ public class Libreria {
                 lista.add(s);
             }
 
-        } catch (KeyStoreException |IOException|NoSuchAlgorithmException|CertificateException e) {
+        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
             e.printStackTrace();
         }
         return lista;
     }
 
+    /**
+     * Metodo que recibe un fichero, obtiene el certificado y devuelve los alias
+     * contenidos en el mismo
+     * 
+     * @param cert Fichero que contiene un certificado PKCS12
+     * @return Un array list
+     */
     public static ArrayList<String> comprobarAlias(File cert) {
         KeyStore ks = obtenerKeyStore(cert);
-
-        Enumeration<String> enumer;
         ArrayList<String> lista = new ArrayList<String>();
-
-        try {
-            enumer = ks.aliases();
-            while (enumer.hasMoreElements()) {
-                String s = enumer.nextElement();
-                lista.add(s);
-            }
-
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        }
+        lista = comprobarAlias(ks);
         return lista;
     }
 
+    /**
+     * Metodo que devuelve la clave de un fichero dadas las credenciales
+     * 
+     * @param alias      El alias del certificado
+     * @param contrasena La contraseña del certificado
+     * @param cert       El fichero que referencia al certificado
+     * @return Un objeto tipo Key en caso de que el fichero y las credenciales
+     *         referenciasen a una clave privada, en caso de que la clave no fuese
+     *         correcta o no referenciase a una clave privada devolvera <b>null</b>
+     */
     public static Key clave(String alias, String contrasena, File cert) {
         Key k = null;
         try (FileInputStream fis = new FileInputStream(cert)) {
@@ -125,6 +144,17 @@ public class Libreria {
         return k;
     }
 
+    /**
+     * Metodo que obtiene la clave de un certificado del almacen del sistema dadas
+     * las credenciales
+     * 
+     * @param alias      El alias del certificado
+     * @param contrasena La contraseña del certificado
+     * @param cert       El fichero que referencia al certificado
+     * @return Un objeto tipo Key en caso de que el fichero y las credenciales
+     *         referenciasen a una clave privada, en caso de que la clave no fuese
+     *         correcta o no referenciase a una clave privada devolvera <b>null</b>
+     */
     public static Key clave(String alias, String contrasena) {
         Key k = null;
         try {
@@ -150,18 +180,30 @@ public class Libreria {
         return k;
     }
 
+    /**
+     * Metodo que recibe un fichero JSON, formatea los datos y los devuelve en una
+     * string manteniendo su formato correcto
+     * 
+     * @param json El fichero con el JSON contenido en su interior
+     * @return El JSON que contenia el fichero pero formateado
+     */
     public static String tratarJsonFichero(File json) {
         String str = null;
         try (FileInputStream fis = new FileInputStream(json)) {
             String textJson = new String(fis.readAllBytes());
-            Object jsonObject = JsonUtils.fromString(textJson);
-            str = JsonUtils.toPrettyString(jsonObject);
+            str = tratarJsonTexto(textJson);
         } catch (Exception e) {
-            // TODO: handle exception
         }
         return str;
     }
 
+    /**
+     * Metodo que recibe una cadena de texto con un fichero JSON y lo formatea de
+     * manera correcta
+     * 
+     * @param json La cadena de texto que contiene el JSON que vamos a formatear
+     * @return La cadena de texto que contiene el JSON formateado
+     */
     public static String tratarJsonTexto(String json) {
         String str = null;
         try (FileInputStream fis = new FileInputStream(json)) {
@@ -174,20 +216,12 @@ public class Libreria {
         return str;
     }
 
-    public static String firmar(Key clave, String json) {
-        String hb = Jwts.builder()
-                .header()
-                .add("alg", clave.getAlgorithm())
-                .add("b64", false)
-                .add("crit", "b64")
-                .and()
-                .content(json)
-                .signWith(clave)
-                .compact();
-        return hb;
-
-    }
-
+    /**
+     * Metodo para obtener una KeyStore recibiendo un fichero 
+     * 
+     * @param cert El fichero que contiene el certificado
+     * @return La KeyStore contenida en el certificado
+     */
     private static KeyStore obtenerKeyStore(File cert) {
         KeyStore ks = null;
         try (FileInputStream fis = new FileInputStream(cert)) {
@@ -201,5 +235,25 @@ public class Libreria {
             System.err.println("Problemas con el certificado");
         }
         return ks;
+    }
+
+    /**
+     * Metodo para firmar la credenciar JWT con la clave especifica 
+     * 
+     * @param clave El objeto de tipo Key con el que queremos firmar
+     * @param json Una cadena que contiene el JSON que queremos añadir en el certificado, se puede pasar una cadena vacia si no quieres añadir nada
+     * @return La firma AWT 
+     */
+    public static String firmar(Key clave, String json) {
+        String hb = Jwts.builder()
+                .header()
+                    .add("alg", clave.getAlgorithm())
+                    .add("b64", false)
+                    .add("crit", "b64")
+                .and()
+                    .content(json)
+                    .signWith(clave)
+                .compact();
+        return hb;
     }
 }
