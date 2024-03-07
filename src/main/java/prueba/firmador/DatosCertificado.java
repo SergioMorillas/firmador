@@ -11,11 +11,38 @@ import javax.swing.JOptionPane;
 
 /**
  *
- * @author sergio
+ * Clase que recibe un certificado, añade todos los alias en un comboBox, pide
+ * laa contraseña y pasa la Key del certificado a otra interfaz (Introducir
+ * datos).
+ * Esta clase al no tener main se podría añadir el Look and Feel en el
+ * constructor o en el initComponents, pero no es necesario ya que por defecto
+ * utilizan el que posee la clase que la ha llamado
  */
 public class DatosCertificado extends javax.swing.JFrame {
-    Object certificado = null;
+    /**
+     * Creamos un objeto certificado, que solo puede ser o File o KeyStore, y luego
+     * trabajaremos sobre ello
+     */
+    private Object certificado = null;
 
+    private javax.swing.JButton btnAceptar;
+    private javax.swing.JComboBox<String> comboAlias;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JLabel lblErrores;
+    private javax.swing.JLabel lblNombreCertificado;
+    private javax.swing.JLabel lblTitulo;
+    private javax.swing.JPasswordField txtContraseña;
+
+    /**
+     * Constructor con un parametro de tipo file, se encarga de setear el
+     * certificado de la clase, añadir el nombre al titulo de la interfaz y a un
+     * label, ademas de rellenar un combobox con todos los aliases del certificado
+     * 
+     * @param certificado Objeto de tipo File que contiene el certificado sobre el
+     *                    que trabajaremos
+     */
     public DatosCertificado(File certificado) {
         this.certificado = certificado;
         initComponents();
@@ -24,6 +51,15 @@ public class DatosCertificado extends javax.swing.JFrame {
 
         comboAlias.setModel(llenarCombo(lista));
     }
+
+    /**
+     * Constructor con un parametro de tipo KeyStore, se encarga de setear el
+     * certificado de la clase, añadir el nombre al titulo de la interfaz y a un
+     * label, ademas de rellenar un combobox con todos los aliases del certificado
+     * 
+     * @param certificado Objeto de tipo KeyStore que contiene el certificado sobre
+     *                    el que trabajaremos
+     */
 
     public DatosCertificado(KeyStore certificado) {
         this.certificado = certificado;
@@ -34,6 +70,10 @@ public class DatosCertificado extends javax.swing.JFrame {
         comboAlias.setModel(llenarCombo(lista));
     }
 
+    /**
+     * Metodo utilizado para inicializar la interfaz gráfica, generar los action
+     * listeners y los elementos
+     */
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
@@ -69,7 +109,7 @@ public class DatosCertificado extends javax.swing.JFrame {
 
             @Override
             public void actionPerformed(ActionEvent evt) {
-                btnAceptarActionPerformed(evt);
+                btnAceptarActionPerformed();
             }
         });
 
@@ -166,7 +206,13 @@ public class DatosCertificado extends javax.swing.JFrame {
         pack();
     }
 
-    private void btnAceptarActionPerformed(java.awt.event.ActionEvent evt) {
+    /**
+     * Metodo que intenta obtener la clave de los datos introducidos (alias y
+     * contraseña), y en caso de que la clave se haya podido recuperar instancia la
+     * ultima interfaz que necesitamos, la interfaz para introducir los datos al
+     * firmador
+     */
+    private void btnAceptarActionPerformed() {
         Key clave = null;
         String contr = new String(txtContraseña.getPassword());
         String alias = (String) comboAlias.getSelectedItem();
@@ -189,16 +235,14 @@ public class DatosCertificado extends javax.swing.JFrame {
 
     }
 
-    private javax.swing.JButton btnAceptar;
-    private javax.swing.JComboBox<String> comboAlias;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JLabel lblErrores;
-    private javax.swing.JLabel lblNombreCertificado;
-    private javax.swing.JLabel lblTitulo;
-    private javax.swing.JPasswordField txtContraseña;
-
+    /**
+     * Metodo que pasado un ArrayList de Strings rellena un
+     * DefaultComboBoxModel<String>, que sirve para rellenar un combo box con los
+     * datos de ese arraylist
+     * 
+     * @param lista El arraylist que contiene los datos
+     * @return El DefaultComboBoxModel con los mismos datos que el arraylist
+     */
     private DefaultComboBoxModel<String> llenarCombo(ArrayList<String> lista) {
         DefaultComboBoxModel<String> dml = new DefaultComboBoxModel<String>();
         for (String str : lista) {
