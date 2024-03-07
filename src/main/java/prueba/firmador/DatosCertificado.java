@@ -2,6 +2,8 @@ package prueba.firmador;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.security.Key;
 import java.security.KeyStore;
@@ -103,7 +105,14 @@ public class DatosCertificado extends javax.swing.JFrame {
         jLabel2.setText("Alias: ");
 
         txtContraseña.setText("");
-
+        txtContraseña.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent evt){
+                if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+                    btnAceptarActionPerformed(); //En caso de que pulses ener en la contraseña tendrá el mismo efecto que pulsar el boton de «Aceptar»
+                }
+            }
+        });
         btnAceptar.setText("Aceptar");
         btnAceptar.addActionListener(new ActionListener() {
 

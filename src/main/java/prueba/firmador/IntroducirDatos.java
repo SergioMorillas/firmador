@@ -7,6 +7,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.datatransfer.StringSelection;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 
@@ -18,15 +20,27 @@ public class IntroducirDatos extends javax.swing.JFrame {
     private String JSON = "";
     private Key clave;
 
-    public IntroducirDatos() {
-        initComponents();
-    }
-
+    private javax.swing.JButton btnFicheroExterno;
+    private javax.swing.JButton btnIntroducirTexto;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblTexto;
+    private javax.swing.JLabel lblTitulo;
+    private javax.swing.JTextPane txtPanelJWT;
+    
+    /**
+     * Constructor con un parametro de tipo Key0
+     * @param clave La clave que utilizaremos para firmar el JWT
+     */
     public IntroducirDatos(Key clave) {
         this.clave = clave;
         initComponents();
     }
 
+    /**
+     * Metodo utilizado para inicializar la interfaz gráfica, generar los action
+     * listeners y los elementos
+     */
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
@@ -48,7 +62,7 @@ public class IntroducirDatos extends javax.swing.JFrame {
         btnIntroducirTexto.setPreferredSize(new java.awt.Dimension(220, 25));
         btnIntroducirTexto.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnIntroducirTextoActionPerformed(evt);
+                btnIntroducirTextoActionPerformed();
             }
         });
 
@@ -56,7 +70,7 @@ public class IntroducirDatos extends javax.swing.JFrame {
         btnFicheroExterno.setPreferredSize(new java.awt.Dimension(220, 25));
         btnFicheroExterno.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnFicheroExternoActionPerformed(evt);
+                btnFicheroExternoActionPerformed();
             }
         });
 
@@ -65,7 +79,14 @@ public class IntroducirDatos extends javax.swing.JFrame {
 
         txtPanelJWT.setFocusable(true);
         jScrollPane1.setViewportView(txtPanelJWT);
-
+        txtPanelJWT.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent evt){
+                if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+                    btnIntroducirTextoActionPerformed(); //En caso de que pulses enter en el JSON tendrá el mismo efecto que pulsar el boton de «Firmar con el texto»
+                }
+            }
+        });
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -122,21 +143,32 @@ public class IntroducirDatos extends javax.swing.JFrame {
         pack();
     }
 
-    private void btnIntroducirTextoActionPerformed(java.awt.event.ActionEvent evt) {
+    /**
+     * Metodo que comprueba si has añadido texto como payload:
+     * <ol>
+     *  <li>Si no hay texto te pregunta si quieres firmar sin texto</li>
+     *  <li>Si hay texto lo utiliza como payload</li>
+     * </ol>
+     * Y una vez hecho ese paso llama al metodo de firmar con el json tratado para que tenga formato
+     */
+    private void btnIntroducirTextoActionPerformed() {
         if (txtPanelJWT.getText().isEmpty() || txtPanelJWT.getText().isBlank()) {
             int opcion = JOptionPane.showConfirmDialog(null, "Estas intentando firmar el documento vacio, si es correcto dele a «Ok»",
                     "Texto vacio",
                     JOptionPane.OK_CANCEL_OPTION);
             if (opcion == JFileChooser.APPROVE_OPTION) {
-                btnFirmarActionPerformed(evt);
+                btnFirmarActionPerformed();
             }
         } else {
-            JSON = txtPanelJWT.getText();
-            btnFirmarActionPerformed(evt);
+            JSON = Libreria.tratarJsonTexto(txtPanelJWT.getText());
+            btnFirmarActionPerformed();
         }
     }
 
-    private void btnFicheroExternoActionPerformed(java.awt.event.ActionEvent evt) {
+    /**
+     * Metodo que abre un explorador de archivos para buscar en el sistema el fichero con el contenido que necesitas, utiliza un filtro para mostrar solo los ficheros .json, y una vez lo recibe guarda ese texto tratado en la variable JSON
+     */
+    private void btnFicheroExternoActionPerformed() {
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Seleccion del JSON");
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Datos", "json");
@@ -149,7 +181,10 @@ public class IntroducirDatos extends javax.swing.JFrame {
         btnIntroducirTexto.setText("Firmar");
     }
 
-    private void btnFirmarActionPerformed(java.awt.event.ActionEvent evt) {
+    /**
+     * Metodo que crea el token JWT firmandolo con la clave y añadiendo el JSON (El cual puede ser una cadena vacia) y lo añade a tu portapapeles, para que puedas pegarlo donde necesites
+     */
+    private void btnFirmarActionPerformed() {
         String JWT = Libreria.firmar(this.clave, JSON);
 
         StringSelection stringSelection = new StringSelection(JWT);
@@ -159,12 +194,4 @@ public class IntroducirDatos extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(null, "El contenido del JWT se ha añadido a tu portapapeles", "Correcto",
                 JOptionPane.INFORMATION_MESSAGE);
     }
-
-    private javax.swing.JButton btnFicheroExterno;
-    private javax.swing.JButton btnIntroducirTexto;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JLabel lblTexto;
-    private javax.swing.JLabel lblTitulo;
-    private javax.swing.JTextPane txtPanelJWT;
 }
