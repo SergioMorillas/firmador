@@ -102,8 +102,20 @@ public class Libreria {
      */
     public static ArrayList<String> comprobarAlias(File cert) {
         KeyStore ks = obtenerKeyStore(cert);
+
+        Enumeration<String> enumer;
         ArrayList<String> lista = new ArrayList<String>();
-        lista = comprobarAlias(ks);
+
+        try {
+            enumer = ks.aliases();
+            while (enumer.hasMoreElements()) {
+                String s = enumer.nextElement();
+                lista.add(s);
+            }
+
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        }
         return lista;
     }
 
@@ -217,7 +229,7 @@ public class Libreria {
     }
 
     /**
-     * Metodo para obtener una KeyStore recibiendo un fichero 
+     * Metodo para obtener una KeyStore recibiendo un fichero
      * 
      * @param cert El fichero que contiene el certificado
      * @return La KeyStore contenida en el certificado
@@ -238,21 +250,23 @@ public class Libreria {
     }
 
     /**
-     * Metodo para firmar la credenciar JWT con la clave especifica 
+     * Metodo para firmar la credenciar JWT con la clave especifica
      * 
      * @param clave El objeto de tipo Key con el que queremos firmar
-     * @param json Una cadena que contiene el JSON que queremos añadir en el certificado, se puede pasar una cadena vacia si no quieres añadir nada
-     * @return La firma AWT 
+     * @param json  Una cadena que contiene el JSON que queremos añadir en el
+     *              certificado, se puede pasar una cadena vacia si no quieres
+     *              añadir nada
+     * @return La firma AWT
      */
     public static String firmar(Key clave, String json) {
         String hb = Jwts.builder()
                 .header()
-                    .add("alg", clave.getAlgorithm())
-                    .add("b64", false)
-                    .add("crit", "b64")
+                .add("alg", clave.getAlgorithm())
+                .add("b64", false)
+                .add("crit", "b64")
                 .and()
-                    .content(json)
-                    .signWith(clave)
+                .content(json)
+                .signWith(clave)
                 .compact();
         return hb;
     }

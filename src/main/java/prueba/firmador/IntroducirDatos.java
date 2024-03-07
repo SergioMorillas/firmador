@@ -7,8 +7,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.datatransfer.StringSelection;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 
@@ -79,14 +77,7 @@ public class IntroducirDatos extends javax.swing.JFrame {
 
         txtPanelJWT.setFocusable(true);
         jScrollPane1.setViewportView(txtPanelJWT);
-        txtPanelJWT.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent evt){
-                if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-                    btnIntroducirTextoActionPerformed(); //En caso de que pulses enter en el JSON tendrá el mismo efecto que pulsar el boton de «Firmar con el texto»
-                }
-            }
-        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
