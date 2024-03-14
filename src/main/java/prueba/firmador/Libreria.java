@@ -1,23 +1,29 @@
 package prueba.firmador;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.Signature;
+import java.security.Signer;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Enumeration;
 
 import com.github.jsonldjava.utils.JsonUtils;
 
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.AeadAlgorithm;
 
 public class Libreria {
     /**
@@ -141,11 +147,14 @@ public class Libreria {
                 String s = enumer.nextElement();
                 System.out.println(s);
                 k = ks.getKey(alias, contrasena.toCharArray());
-                k.getAlgorithm();
+
+                System.out.println("Valor de k en este punto, 181: " + k);
+                System.out.println("El encoded de k: " + k.getEncoded());
+
                 if (k instanceof PrivateKey) {
                     k = (PrivateKey) k;
                     System.out.println("Clave privada: " + Base64.getEncoder().encodeToString(k.getEncoded()));
-                } else {
+                } else if (k instanceof PrivateKey) {
                     return null;
                 }
 
@@ -175,15 +184,27 @@ public class Libreria {
             Enumeration<String> enumer = ks.aliases();
             while (enumer.hasMoreElements()) {
                 String s = enumer.nextElement();
-                System.out.println(s);
+                System.out.println("Enumeracion: " + s);
                 k = ks.getKey(alias, contrasena.toCharArray());
-                k.getAlgorithm();
-                if (k instanceof PrivateKey) {
-                    k = (PrivateKey) k;
-                    System.out.println("Clave privada: " + Base64.getEncoder().encodeToString(k.getEncoded()));
+
+                if (k instanceof PrivateKey && k.getEncoded() != null) {
+
+                    k = (java.security.PrivateKey) k;
+                    System.out.println(k.getEncoded());
                 } else {
-                    return null;
+                    String clase = (k.getClass().getSuperclass().getName());
+                    Class<?> c = Class.forName(clase);
+                    System.out.println("Clase -> " + c.getName());
+                    for (Method method : c.getMethods()) {
+                        System.out.println(method.getName());
+                        System.out.println(Arrays.toString(method.getParameters()));
+                    }
+                    Method metodo = c.getMethod("getEncoded");
+                    metodo.setAccessible(true);
+                    byte[] p = (byte[])metodo.invoke(k);
+                    System.out.println("Clave privada: " + Base64.getEncoder().encodeToString(p));                
                 }
+
 
             }
         } catch (Exception e) {
@@ -204,6 +225,8 @@ public class Libreria {
         try (FileInputStream fis = new FileInputStream(json)) {
             String textJson = new String(fis.readAllBytes());
             str = tratarJsonTexto(textJson);
+            System.out.println("Raw data -> " + textJson);
+            System.out.println(str);
         } catch (Exception e) {
         }
         return str;
@@ -220,8 +243,10 @@ public class Libreria {
         String str = null;
         try (FileInputStream fis = new FileInputStream(json)) {
             Object jsonObject = JsonUtils.fromString(json);
+            System.out.println("Objeto" + jsonObject);
             str = JsonUtils.toPrettyString(jsonObject);
         } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
             // TODO: handle exception
         }
 
