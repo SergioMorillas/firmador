@@ -6,15 +6,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.security.Key;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.Signature;
-import java.security.Signer;
+import java.math.BigInteger;
+import java.security.*;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.spec.KeySpec;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.RSAPrivateKeySpec;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -140,21 +138,11 @@ public class Libreria {
         try (FileInputStream fis = new FileInputStream(cert)) {
             KeyStore ks = KeyStore.getInstance("PKCS12");
             ks.load(fis, null);
-            System.out.println("Datos a pelo: "
-                    + Base64.getEncoder().encodeToString(ks.getKey(alias, contrasena.toCharArray()).getEncoded()));
             Enumeration<String> enumer = ks.aliases();
             while (enumer.hasMoreElements()) {
                 String s = enumer.nextElement();
-                System.out.println(s);
                 k = ks.getKey(alias, contrasena.toCharArray());
-
-                System.out.println("Valor de k en este punto, 181: " + k);
-                System.out.println("El encoded de k: " + k.getEncoded());
-
-                if (k instanceof PrivateKey) {
-                    k = (PrivateKey) k;
-                    System.out.println("Clave privada: " + Base64.getEncoder().encodeToString(k.getEncoded()));
-                } else if (k instanceof PrivateKey) {
+                if (!(k instanceof PrivateKey)) {
                     return null;
                 }
 
@@ -171,7 +159,6 @@ public class Libreria {
      * 
      * @param alias      El alias del certificado
      * @param contrasena La contraseña del certificado
-     * @param cert       El fichero que referencia al certificado
      * @return Un objeto tipo Key en caso de que el fichero y las credenciales
      *         referenciasen a una clave privada, en caso de que la clave no fuese
      *         correcta o no referenciase a una clave privada devolvera <b>null</b>
@@ -181,32 +168,10 @@ public class Libreria {
         try {
             KeyStore ks = certificadosSistema();
             ks.load(null, null);
-            Enumeration<String> enumer = ks.aliases();
-            while (enumer.hasMoreElements()) {
-                String s = enumer.nextElement();
-                System.out.println("Enumeracion: " + s);
-                k = ks.getKey(alias, contrasena.toCharArray());
+            Certificate cert = ks.getCertificate(alias);
+            System.out.println(Base64.getEncoder().encodeToString(cert.getEncoded()));
+            KeyFactory kf = KeyFactory.getInstance("RSA");
 
-                if (k instanceof PrivateKey && k.getEncoded() != null) {
-
-                    k = (java.security.PrivateKey) k;
-                    System.out.println(k.getEncoded());
-                } else {
-                    String clase = (k.getClass().getSuperclass().getName());
-                    Class<?> c = Class.forName(clase);
-                    System.out.println("Clase -> " + c.getName());
-                    for (Method method : c.getMethods()) {
-                        System.out.println(method.getName());
-                        System.out.println(Arrays.toString(method.getParameters()));
-                    }
-                    Method metodo = c.getMethod("getEncoded");
-                    metodo.setAccessible(true);
-                    byte[] p = (byte[])metodo.invoke(k);
-                    System.out.println("Clave privada: " + Base64.getEncoder().encodeToString(p));                
-                }
-
-
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -241,7 +206,7 @@ public class Libreria {
      */
     public static String tratarJsonTexto(String json) {
         String str = null;
-        try (FileInputStream fis = new FileInputStream(json)) {
+        try  {
             Object jsonObject = JsonUtils.fromString(json);
             System.out.println("Objeto" + jsonObject);
             str = JsonUtils.toPrettyString(jsonObject);
@@ -286,12 +251,12 @@ public class Libreria {
     public static String firmar(Key clave, String json) {
         String hb = Jwts.builder()
                 .header()
-                .add("alg", clave.getAlgorithm())
-                .add("b64", false)
-                .add("crit", "b64")
+                    .add("alg", clave.getAlgorithm())
+                    .add("b64", false)
+                    .add("crit", "b64")
                 .and()
-                .content(json)
-                .signWith(clave)
+                    .content(json)
+                    .signWith(clave)
                 .compact();
         return hb;
     }

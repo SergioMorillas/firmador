@@ -65,7 +65,7 @@ public class IntroducirDatos extends javax.swing.JFrame {
             }
         });
 
-        btnFicheroExterno.setText("Fichero externo");
+        btnFicheroExterno.setText("Cargar un fichero externo");
         btnFicheroExterno.setPreferredSize(new java.awt.Dimension(220, 25));
         btnFicheroExterno.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -163,7 +163,7 @@ public class IntroducirDatos extends javax.swing.JFrame {
      * que tenga formato
      */
     private void btnIntroducirTextoActionPerformed() {
-        if (txtPanelJWT.getText().isEmpty() || txtPanelJWT.getText().isBlank() || JSON.isEmpty() || JSON.isBlank()) {
+        if (txtPanelJWT.getText().isEmpty() || txtPanelJWT.getText().isBlank()) {
             int opcion = JOptionPane.showConfirmDialog(null,
                     "Estas intentando firmar el documento vacio, si es correcto dele a «Ok»",
                     "Texto vacio",
@@ -191,9 +191,7 @@ public class IntroducirDatos extends javax.swing.JFrame {
         int returnVal = chooser.showOpenDialog(null);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File f = chooser.getSelectedFile();
-            System.out.println("FICHERO -->    " + f.getAbsolutePath());
             JSON = Libreria.tratarJsonFichero(f);
-            System.out.println("JSON -->    " + JSON);
             txtPanelJWT.setText(JSON);
         }
     }
@@ -214,3 +212,6 @@ public class IntroducirDatos extends javax.swing.JFrame {
                 JOptionPane.INFORMATION_MESSAGE);
     }
 }
+
+
+
