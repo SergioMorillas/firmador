@@ -5,3 +5,9 @@ Por ahora funciona en:
 - Windows: A través de un fichero .p12
 - Linux: A través de un fichero .p12 o JKS
 - MacOS: A través de un fichero .p12 o el almacen de certificados del sistema
+
+## Para pruebas
+Las credenciales del certificado son:
+- Alias: 1
+- Contraseña: prueba123
+- 
