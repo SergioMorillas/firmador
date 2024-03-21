@@ -1,14 +1,26 @@
 package prueba.firmador;
 
+import com.github.jsonldjava.core.JsonLdProcessor;
 import com.github.jsonldjava.utils.JsonUtils;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.ECDSASigner;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import io.jsonwebtoken.Header;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtVisitor;
 import io.jsonwebtoken.Jwts;
+import jdk.jshell.spi.ExecutionControl;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.*;
 import java.security.cert.CertificateException;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
@@ -23,7 +35,7 @@ public class Libreria {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] messageDigest = md.digest(cadena.getBytes());
-            java.math.BigInteger number = new java.math.BigInteger(1, messageDigest);
+            BigInteger number = new BigInteger(1, messageDigest);
             String hashtext = number.toString(16);
 
             while (hashtext.length() < 32)
@@ -169,17 +181,16 @@ public class Libreria {
     public static String tratarJsonFichero(File json) {
         String str = null;
         try (FileInputStream fis = new FileInputStream(json)) {
-            String textJson = new String(fis.readAllBytes());
-            str = tratarJsonTexto(textJson);
-            System.out.println("Raw data -> " + textJson);
-            System.out.println(str);
+            Object jsonObject = JsonUtils.fromInputStream(fis);
+            Object jsonNormalize = JsonLdProcessor.normalize(jsonObject);
+            str = JsonUtils.toPrettyString(jsonNormalize);
         } catch (Exception e) {
         }
         return str;
     }
 
     /**
-     * Metodo que recibe una cadena de texto con un fichero JSON y lo formatea de
+     * Metodo que recibe una cadena de texto con un fichero JSON y lo normaliza de
      * manera correcta
      *
      * @param json La cadena de texto que contiene el JSON que vamos a formatear
@@ -189,8 +200,8 @@ public class Libreria {
         String str = null;
         try {
             Object jsonObject = JsonUtils.fromString(json);
-            System.out.println("Objeto" + jsonObject);
-            str = JsonUtils.toPrettyString(jsonObject);
+            Object jsonNormalize = JsonLdProcessor.normalize(jsonObject);
+            str = JsonUtils.toPrettyString(jsonNormalize);
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -229,6 +240,27 @@ public class Libreria {
      * @return La firma AWT
      */
     public static String firmar(Key clave, String json) {
+        json = cifrar(json);
+        try {
+            JWSHeader header = JWSHeader.parse("{\"alg\": \"ES256\",\n\"b64\": false,\n\"crit\": [\"b64\"]}");
+            Payload p = new Payload(json);
+            JWSObjectJSON jws = new JWSObjectJSON(p);
+            JWSSigner signer = null;
+
+            switch (clave.getAlgorithm()) {
+                case "EC" -> signer = new ECDSASigner((ECPrivateKey) clave);
+                case "RSA" -> signer = new RSASSASigner((RSAPrivateKey) clave);
+                default -> throw new UnsupportedOperationException("Caracteristica no desarrollada, la clave debe ser EC o RSA");
+            }
+            jws.sign(header, signer);
+            return (jws.toFlattenedJSONObject().get("protected") + ".." + jws.toFlattenedJSONObject().get("signature"));
+        } catch (ParseException | JOSEException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String _firmar(Key clave, String json) {
+        json = cifrar(json);
         String hb = Jwts.builder()
                 .header()
                 .add("alg", clave.getAlgorithm())

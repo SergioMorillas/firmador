@@ -173,6 +173,13 @@ public class IntroducirDatos extends javax.swing.JFrame {
             }
         } else {
             JSON = Libreria.tratarJsonTexto(txtPanelJWT.getText());
+            if (JSON == null){
+                JOptionPane.showConfirmDialog(null,
+                        "El JSON no es valido",
+                        "Texto vacio",
+                        JOptionPane.OK_CANCEL_OPTION);
+
+            }
             btnFirmarActionPerformed();
         }
     }
