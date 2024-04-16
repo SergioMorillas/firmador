@@ -1,17 +1,19 @@
 package prueba.firmador;
 
+import com.formdev.flatlaf.FlatDarkLaf;
+
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.security.Key;
 
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.datatransfer.StringSelection;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-
 /**
- *
  * @author sergio
  */
 public class IntroducirDatos extends javax.swing.JFrame {
@@ -19,7 +21,8 @@ public class IntroducirDatos extends javax.swing.JFrame {
     private Key clave;
 
     private javax.swing.JButton btnFicheroExterno;
-    private javax.swing.JButton btnIntroducirTexto;
+    private javax.swing.JButton btnFirmaGenerica;
+    private javax.swing.JButton btnFirmaCompacta;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblTexto;
@@ -28,7 +31,7 @@ public class IntroducirDatos extends javax.swing.JFrame {
 
     /**
      * Constructor con un parametro de tipo Key0
-     * 
+     *
      * @param clave La clave que utilizaremos para firmar el JWT
      */
     public IntroducirDatos(Key clave) {
@@ -41,10 +44,11 @@ public class IntroducirDatos extends javax.swing.JFrame {
      * listeners y los elementos
      */
     private void initComponents() {
-
+        this.setResizable(false);
         jPanel1 = new javax.swing.JPanel();
         lblTitulo = new javax.swing.JLabel();
-        btnIntroducirTexto = new javax.swing.JButton();
+        btnFirmaGenerica = new javax.swing.JButton();
+        btnFirmaCompacta = new JButton();
         btnFicheroExterno = new javax.swing.JButton();
         lblTexto = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -54,14 +58,21 @@ public class IntroducirDatos extends javax.swing.JFrame {
 
         jPanel1.setBackground(new java.awt.Color(102, 102, 102));
 
-        lblTitulo.setFont(new java.awt.Font("Dialog", 3, 36));
+        lblTitulo.setFont(new java.awt.Font("Dialog", Font.BOLD, 36));
         lblTitulo.setText("Introduce tus datos");
 
-        btnIntroducirTexto.setText("Firmar");
-        btnIntroducirTexto.setPreferredSize(new java.awt.Dimension(220, 25));
-        btnIntroducirTexto.addActionListener(new java.awt.event.ActionListener() {
+        btnFirmaGenerica.setText("Firmar de manera genérica");
+        btnFirmaGenerica.setPreferredSize(new java.awt.Dimension(220, 25));
+        btnFirmaGenerica.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnIntroducirTextoActionPerformed();
+                btnFirmaGenericaActionPerformed();
+            }
+        });
+        btnFirmaCompacta.setText("Firmar de manera compacta");
+        btnFirmaCompacta.setPreferredSize(new java.awt.Dimension(220, 25));
+        btnFirmaCompacta.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFirmaCompactaActionPerformed();
             }
         });
 
@@ -74,8 +85,7 @@ public class IntroducirDatos extends javax.swing.JFrame {
         });
 
         lblTexto.setForeground(new java.awt.Color(255, 255, 255));
-        lblTexto.setText(
-                "Introduzca los datos que deseas añadir al payload en el siguiente cuadro o introduce un fichero JSON.");
+        lblTexto.setText("Introduzca los datos que deseas añadir al payload en el siguiente cuadro o introduce un fichero JSON.");
 
         txtPanelJWT.setFocusable(true);
         jScrollPane1.setViewportView(txtPanelJWT);
@@ -88,67 +98,47 @@ public class IntroducirDatos extends javax.swing.JFrame {
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addGroup(jPanel1Layout.createSequentialGroup()
                                                 .addGap(212, 212, 212)
-                                                .addComponent(lblTitulo)
-                                                .addGap(0, 0, Short.MAX_VALUE))
+                                                .addComponent(lblTitulo))
                                         .addGroup(jPanel1Layout.createSequentialGroup()
                                                 .addGap(78, 78, 78)
-                                                .addGroup(jPanel1Layout
-                                                        .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING,
-                                                                jPanel1Layout.createSequentialGroup()
-                                                                        .addComponent(btnFicheroExterno,
-                                                                                javax.swing.GroupLayout.PREFERRED_SIZE,
-                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
-                                                                                javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                                        .addPreferredGap(
-                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED,
-                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
-                                                                                Short.MAX_VALUE)
-                                                                        .addComponent(btnIntroducirTexto,
-                                                                                javax.swing.GroupLayout.PREFERRED_SIZE,
-                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
-                                                                                javax.swing.GroupLayout.PREFERRED_SIZE))
-                                                        .addGroup(jPanel1Layout.createSequentialGroup()
-                                                                .addGroup(jPanel1Layout.createParallelGroup(
-                                                                        javax.swing.GroupLayout.Alignment.LEADING)
-                                                                        .addComponent(lblTexto)
-                                                                        .addComponent(jScrollPane1,
-                                                                                javax.swing.GroupLayout.PREFERRED_SIZE,
-                                                                                748,
-                                                                                javax.swing.GroupLayout.PREFERRED_SIZE))
-                                                                .addGap(0, 0, Short.MAX_VALUE)))))
-                                .addGap(85, 85, 85)));
+                                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                        .addComponent(lblTexto)
+                                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 739, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                .addGroup(jPanel1Layout.createSequentialGroup()
+                                                                        .addComponent(btnFicheroExterno, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                        .addGap(105, 105, 105)
+                                                                        .addComponent(btnFirmaGenerica)
+                                                                        .addGap(105, 105, 105)
+                                                                        .addComponent(btnFirmaCompacta))))))
+                                .addContainerGap(96, Short.MAX_VALUE))
+        );
         jPanel1Layout.setVerticalGroup(
                 jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGap(42, 42, 42)
-                                .addComponent(lblTitulo, javax.swing.GroupLayout.PREFERRED_SIZE, 64,
-                                        javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(lblTitulo, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(30, 30, 30)
                                 .addComponent(lblTexto)
                                 .addGap(12, 12, 12)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 177,
-                                        javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 267, Short.MAX_VALUE)
+                                .addGap(18, 18, 18)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(btnFicheroExterno, javax.swing.GroupLayout.PREFERRED_SIZE, 57,
-                                                javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(btnIntroducirTexto, javax.swing.GroupLayout.PREFERRED_SIZE, 57,
-                                                javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(27, 27, 27)));
-
+                                        .addComponent(btnFicheroExterno, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(btnFirmaGenerica, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(btnFirmaCompacta, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(59, 59, 59))
+        );
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
                 layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE,
-                                javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE));
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        );
         layout.setVerticalGroup(
                 layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE,
-                                        javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE)));
+                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
 
         pack();
     }
@@ -162,27 +152,41 @@ public class IntroducirDatos extends javax.swing.JFrame {
      * Y una vez hecho ese paso llama al metodo de firmar con el json tratado para
      * que tenga formato
      */
-    private void btnIntroducirTextoActionPerformed() {
+    private void btnFirmaGenericaActionPerformed() {
         if (txtPanelJWT.getText().isEmpty() || txtPanelJWT.getText().isBlank()) {
-            int opcion = JOptionPane.showConfirmDialog(null,
-                    "Estas intentando firmar el documento vacio, si es correcto dele a «Ok»",
-                    "Texto vacio",
-                    JOptionPane.OK_CANCEL_OPTION);
-            if (opcion == JOptionPane.OK_OPTION) {
-                btnFirmarActionPerformed();
+            if (getOpcion() == JOptionPane.OK_OPTION) {
+                btnFirmarGenericoActionPerformed();
             }
         } else {
             JSON = Libreria.tratarJsonTexto(txtPanelJWT.getText());
-            if (JSON == null){
-                JOptionPane.showConfirmDialog(null,
-                        "El JSON no es valido",
-                        "Texto vacio",
-                        JOptionPane.OK_CANCEL_OPTION);
-
-            }
-            btnFirmarActionPerformed();
+            if (comprobarNullJson("Texto vacio")) btnFirmarGenericoActionPerformed();
         }
     }
+
+    private void btnFirmaCompactaActionPerformed() {
+        if (txtPanelJWT.getText().isEmpty() || txtPanelJWT.getText().isBlank()) {
+            if (getOpcion() == JOptionPane.OK_OPTION) {
+                btnFirmarCompactoActionPerformed();
+            }
+        } else {
+            JSON = Libreria.tratarJsonTexto(txtPanelJWT.getText());
+            if (comprobarNullJson("Json mal formateado")) btnFirmarCompactoActionPerformed();
+        }
+    }
+
+    private boolean comprobarNullJson(String jsonErroneo) {
+        if (JSON == null) {
+            JOptionPane.showConfirmDialog(null, "El JSON no es valido", jsonErroneo, JOptionPane.OK_CANCEL_OPTION);
+            return false;
+        }
+        return true;
+    }
+
+    private static int getOpcion() {
+        int opcion = JOptionPane.showConfirmDialog(null, "Estas intentando firmar el documento vacio, si es correcto dele a «Ok»", "Texto vacio", JOptionPane.OK_CANCEL_OPTION);
+        return opcion;
+    }
+
 
     /**
      * Metodo que abre un explorador de archivos para buscar en el sistema el
@@ -198,8 +202,14 @@ public class IntroducirDatos extends javax.swing.JFrame {
         int returnVal = chooser.showOpenDialog(null);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File f = chooser.getSelectedFile();
-            JSON = Libreria.tratarJsonFichero(f);
-            txtPanelJWT.setText(JSON);
+            try(FileInputStream fis = new FileInputStream(f)){
+                txtPanelJWT.setText(new String(fis.readAllBytes()));
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
         }
     }
 
@@ -208,15 +218,24 @@ public class IntroducirDatos extends javax.swing.JFrame {
      * cual puede ser una cadena vacia) y lo añade a tu portapapeles, para que
      * puedas pegarlo donde necesites
      */
-    private void btnFirmarActionPerformed() {
+    private void btnFirmarGenericoActionPerformed() {
+        String JWT = Libreria._firmar(this.clave, JSON);
+
+        anadirPortapapeles(JWT);
+    }
+
+    private void btnFirmarCompactoActionPerformed() {
         String JWT = Libreria.firmar(this.clave, JSON);
 
+        anadirPortapapeles(JWT);
+    }
+
+    private static void anadirPortapapeles(String JWT) {
         StringSelection stringSelection = new StringSelection(JWT);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(stringSelection, null);
 
-        JOptionPane.showMessageDialog(null, "El contenido del JWT se ha añadido a tu portapapeles", "Correcto",
-                JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(null, "El contenido del JWT se ha añadido a tu portapapeles", "Correcto", JOptionPane.INFORMATION_MESSAGE);
     }
 }
 

@@ -198,10 +198,12 @@ public class Libreria {
      */
     public static String tratarJsonTexto(String json) {
         String str = null;
+
         try {
             Object jsonObject = JsonUtils.fromString(json);
             Object jsonNormalize = JsonLdProcessor.normalize(jsonObject);
             str = JsonUtils.toPrettyString(jsonNormalize);
+            System.out.println(jsonNormalize);
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
