@@ -26,7 +26,7 @@
         <shade.version>3.2.4</shade.version>
         <minidev.version>2.5.0</minidev.version>
 
-        <main.class>prueba.firmador.InterfazSeleccion</main.class>
+        <main.class>prueba.firmador.InterfazSeleccionCertificado</main.class>
     </properties>
 
     <dependencies>

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Enumeration;
 
-public class LibreriaDatosCertificado {
+public class LibreriaAnadirDatosCertificado {
     /**
      * Metodo que recibido un KeyStore comprueba los alias que contiene y los
      * devuelve

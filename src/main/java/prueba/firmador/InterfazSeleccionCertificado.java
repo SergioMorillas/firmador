@@ -12,7 +12,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 /**
  * Clase con la interfaz principal de la aplicación
  */
-public class InterfazSeleccion extends JFrame {
+public class InterfazSeleccionCertificado extends JFrame {
     private JButton btnAlmacen;
     private JButton btnFichero;
     private JPanel jPanel1;
@@ -22,7 +22,7 @@ public class InterfazSeleccion extends JFrame {
     /**
      * Constructor vacio, es llamado por la función Main
      */
-    public InterfazSeleccion() {
+    public InterfazSeleccionCertificado() {
         initComponents();
     }
 
@@ -140,7 +140,7 @@ public class InterfazSeleccion extends JFrame {
      * especifico y su contraseña en base a los certificados del sistema
      */
     private void busquedaCertificadosSistema() {
-        DatosCertificado dc = new DatosCertificado(LibreriaGeneral.certificadosSistema());
+        InterfazAnadirDatosCertificado dc = new InterfazAnadirDatosCertificado(LibreriaGeneral.certificadosSistema());
         dc.setVisible(true);
         this.dispose();
     }
@@ -157,7 +157,7 @@ public class InterfazSeleccion extends JFrame {
         int returnVal = chooser.showOpenDialog(null);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File f = chooser.getSelectedFile();
-            DatosCertificado dc = new DatosCertificado(f);
+            InterfazAnadirDatosCertificado dc = new InterfazAnadirDatosCertificado(f);
             dc.setVisible(true);
             this.dispose();
         }
@@ -183,7 +183,7 @@ public class InterfazSeleccion extends JFrame {
                 }
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
                      UnsupportedLookAndFeelException ex) {
-                java.util.logging.Logger.getLogger(InterfazSeleccion.class.getName()).log(
+                java.util.logging.Logger.getLogger(InterfazSeleccionCertificado.class.getName()).log(
                         java.util.logging.Level.SEVERE,
                         null, ex);
             }
@@ -191,7 +191,7 @@ public class InterfazSeleccion extends JFrame {
         //Metodo que ejecuta la interfaz como tal, para que sea visible y podamos trabajar sobre ella
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new InterfazSeleccion().setVisible(true);
+                new InterfazSeleccionCertificado().setVisible(true);
             }
         });
     }

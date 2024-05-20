@@ -1,7 +1,5 @@
 package prueba.firmador;
 
-import com.formdev.flatlaf.FlatDarkLaf;
-
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
@@ -16,7 +14,7 @@ import java.security.Key;
 /**
  * @author sergio
  */
-public class IntroducirDatos extends javax.swing.JFrame {
+public class InterfazAnadirJSON extends javax.swing.JFrame {
     private String JSON = "";
     private Key clave;
 
@@ -34,7 +32,7 @@ public class IntroducirDatos extends javax.swing.JFrame {
      *
      * @param clave La clave que utilizaremos para firmar el JWT
      */
-    public IntroducirDatos(Key clave) {
+    public InterfazAnadirJSON(Key clave) {
         this.clave = clave;
         initComponents();
     }
@@ -158,7 +156,7 @@ public class IntroducirDatos extends javax.swing.JFrame {
                 btnFirmarGenericoActionPerformed();
             }
         } else {
-            JSON = LibreriaIntroducirDatos.tratarJsonTexto(txtPanelJWT.getText());
+            JSON = LibreriaAnadirJSON.tratarJsonTexto(txtPanelJWT.getText());
             if (comprobarNullJson("Texto vacio")) btnFirmarGenericoActionPerformed();
         }
     }
@@ -169,7 +167,7 @@ public class IntroducirDatos extends javax.swing.JFrame {
                 btnFirmarCompactoActionPerformed();
             }
         } else {
-            JSON = LibreriaIntroducirDatos.tratarJsonTexto(txtPanelJWT.getText());
+            JSON = LibreriaAnadirJSON.tratarJsonTexto(txtPanelJWT.getText());
             if (comprobarNullJson("Json mal formateado")) btnFirmarCompactoActionPerformed();
         }
     }
@@ -218,13 +216,13 @@ public class IntroducirDatos extends javax.swing.JFrame {
      * puedas pegarlo donde necesites
      */
     private void btnFirmarGenericoActionPerformed() {
-        String JWT = LibreriaIntroducirDatos.firmarJWT(this.clave, JSON);
+        String JWT = LibreriaAnadirJSON.firmarJWT(this.clave, JSON);
 
         anadirPortapapeles(JWT);
     }
 
     private void btnFirmarCompactoActionPerformed() {
-        String JWT = LibreriaIntroducirDatos.firmarJWS(this.clave, JSON);
+        String JWT = LibreriaAnadirJSON.firmarJWS(this.clave, JSON);
 
         anadirPortapapeles(JWT);
     }

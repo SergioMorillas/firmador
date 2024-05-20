@@ -18,7 +18,7 @@ import java.util.ArrayList;
  * constructor o en el initComponents, pero no es necesario ya que por defecto
  * utilizan el que posee la clase que la ha llamado
  */
-public class DatosCertificado extends javax.swing.JFrame {
+public class InterfazAnadirDatosCertificado extends javax.swing.JFrame {
     /**
      * Creamos un objeto certificado, que solo puede ser o File o KeyStore, y luego
      * trabajaremos sobre ello
@@ -43,12 +43,12 @@ public class DatosCertificado extends javax.swing.JFrame {
      * @param certificado Objeto de tipo File que contiene el certificado sobre el
      *                    que trabajaremos
      */
-    public DatosCertificado(File certificado) {
+    public InterfazAnadirDatosCertificado(File certificado) {
         this.setResizable(false);
         this.certificado = certificado;
         initComponents();
         lblNombreCertificado.setText(certificado.getName());
-        ArrayList<String> lista = LibreriaDatosCertificado.comprobarAlias(certificado);
+        ArrayList<String> lista = LibreriaAnadirDatosCertificado.comprobarAlias(certificado);
 
         comboAlias.setModel(llenarCombo(lista));
     }
@@ -62,11 +62,11 @@ public class DatosCertificado extends javax.swing.JFrame {
      *                    el que trabajaremos
      */
 
-    public DatosCertificado(KeyStore certificado) {
+    public InterfazAnadirDatosCertificado(KeyStore certificado) {
         this.certificado = certificado;
         initComponents();
         lblNombreCertificado.setText("Certificados del sistema");
-        ArrayList<String> lista = LibreriaDatosCertificado.comprobarAlias(certificado);
+        ArrayList<String> lista = LibreriaAnadirDatosCertificado.comprobarAlias(certificado);
 
         comboAlias.setModel(llenarCombo(lista));
     }
@@ -263,9 +263,9 @@ public class DatosCertificado extends javax.swing.JFrame {
 
         if (certificado instanceof File) {
             System.out.println("Es un fichero");
-            clave = LibreriaDatosCertificado.clave(alias, contr, (File) certificado);
+            clave = LibreriaAnadirDatosCertificado.clave(alias, contr, (File) certificado);
         } else {
-            clave = LibreriaDatosCertificado.clave(alias, contr);
+            clave = LibreriaAnadirDatosCertificado.clave(alias, contr);
         }
         if (clave == null) {
             JOptionPane.showMessageDialog(null,
@@ -273,7 +273,7 @@ public class DatosCertificado extends javax.swing.JFrame {
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
         } else {
-            IntroducirDatos id = new IntroducirDatos(clave);
+            InterfazAnadirJSON id = new InterfazAnadirJSON(clave);
             id.setVisible(true);
             this.dispose();
         }
