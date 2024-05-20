@@ -61,14 +61,14 @@ public class IntroducirDatos extends javax.swing.JFrame {
         lblTitulo.setFont(new java.awt.Font("Dialog", Font.BOLD, 36));
         lblTitulo.setText("Introduce tus datos");
 
-        btnFirmaGenerica.setText("Firmar de manera genérica");
+        btnFirmaGenerica.setText("Firmar un VC-JWT");
         btnFirmaGenerica.setPreferredSize(new java.awt.Dimension(220, 25));
         btnFirmaGenerica.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnFirmaGenericaActionPerformed();
             }
         });
-        btnFirmaCompacta.setText("Firmar de manera compacta");
+        btnFirmaCompacta.setText("Firmar un JWS");
         btnFirmaCompacta.setPreferredSize(new java.awt.Dimension(220, 25));
         btnFirmaCompacta.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -209,7 +209,6 @@ public class IntroducirDatos extends javax.swing.JFrame {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-
         }
     }
 
@@ -219,13 +218,13 @@ public class IntroducirDatos extends javax.swing.JFrame {
      * puedas pegarlo donde necesites
      */
     private void btnFirmarGenericoActionPerformed() {
-        String JWT = Libreria._firmar(this.clave, JSON);
+        String JWT = Libreria.firmarJWT(this.clave, JSON);
 
         anadirPortapapeles(JWT);
     }
 
     private void btnFirmarCompactoActionPerformed() {
-        String JWT = Libreria.firmar(this.clave, JSON);
+        String JWT = Libreria.firmarJWS(this.clave, JSON);
 
         anadirPortapapeles(JWT);
     }
@@ -234,7 +233,7 @@ public class IntroducirDatos extends javax.swing.JFrame {
         StringSelection stringSelection = new StringSelection(JWT);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(stringSelection, null);
-
+        
         JOptionPane.showMessageDialog(null, "El contenido del JWT se ha añadido a tu portapapeles", "Correcto", JOptionPane.INFORMATION_MESSAGE);
     }
 }

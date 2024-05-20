@@ -10,4 +10,3 @@ Por ahora funciona en:
 Las credenciales del certificado son:
 - Alias: 1
 - Contraseña: prueba123
-- 

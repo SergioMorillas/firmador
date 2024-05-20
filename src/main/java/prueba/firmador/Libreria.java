@@ -1,28 +1,23 @@
 package prueba.firmador;
 
-import com.github.jsonldjava.core.JsonLdProcessor;
-import com.github.jsonldjava.utils.JsonUtils;
+import com.apicatalog.jsonld.JsonLd;
+import com.apicatalog.jsonld.JsonLdError;
+import com.apicatalog.jsonld.document.Document;
+import com.apicatalog.jsonld.document.JsonDocument;
+import com.apicatalog.rdf.RdfNQuad;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.ECDSASigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
-import io.jsonwebtoken.Header;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.JwtVisitor;
 import io.jsonwebtoken.Jwts;
-import jdk.jshell.spi.ExecutionControl;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigInteger;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Enumeration;
+import java.util.*;
 
 public class Libreria {
     /**
@@ -81,7 +76,7 @@ public class Libreria {
     public static ArrayList<String> comprobarAlias(KeyStore ks) {
 
         Enumeration<String> enumer;
-        ArrayList<String> lista = new ArrayList<String>();
+        ArrayList<String> lista = new ArrayList<>();
 
         try {
             ks.load(null, null);
@@ -141,7 +136,7 @@ public class Libreria {
             ks.load(fis, null);
             k = ks.getKey(alias, contrasena.toCharArray());
             if (!(k instanceof PrivateKey)) return null;
-
+            System.out.println(Base64.getEncoder().encodeToString(k.getEncoded()));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -172,24 +167,6 @@ public class Libreria {
     }
 
     /**
-     * Metodo que recibe un fichero JSON, formatea los datos y los devuelve en una
-     * string manteniendo su formato correcto
-     *
-     * @param json El fichero con el JSON contenido en su interior
-     * @return El JSON que contenia el fichero pero formateado
-     */
-    public static String tratarJsonFichero(File json) {
-        String str = null;
-        try (FileInputStream fis = new FileInputStream(json)) {
-            Object jsonObject = JsonUtils.fromInputStream(fis);
-            Object jsonNormalize = JsonLdProcessor.normalize(jsonObject);
-            str = JsonUtils.toPrettyString(jsonNormalize);
-        } catch (Exception e) {
-        }
-        return str;
-    }
-
-    /**
      * Metodo que recibe una cadena de texto con un fichero JSON y lo normaliza de
      * manera correcta
      *
@@ -198,16 +175,20 @@ public class Libreria {
      */
     public static String tratarJsonTexto(String json) {
         String str = null;
-
         try {
-            Object jsonObject = JsonUtils.fromString(json);
-            Object jsonNormalize = JsonLdProcessor.normalize(jsonObject);
-            str = JsonUtils.toPrettyString(jsonNormalize);
-            System.out.println(jsonNormalize);
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
+            Reader reader = new StringReader(json);
+            Document document = JsonDocument.of(reader);
+            StringBuilder sb = new StringBuilder();
+            List<RdfNQuad> lista = null;
+            lista = JsonLd.toRdf(document).get().toList();
+            Collections.reverse(lista);
+            lista.forEach(sb::append);
 
+            str = sb.toString();
+
+        } catch (JsonLdError e) {
+            throw new RuntimeException(e);
+        }
         return str;
     }
 
@@ -233,7 +214,7 @@ public class Libreria {
     }
 
     /**
-     * Metodo para firmar la credenciar JWT con la clave especifica
+     * Metodo para firmar la credenciar JWS con la clave especifica
      *
      * @param clave El objeto de tipo Key con el que queremos firmar
      * @param json  Una cadena que contiene el JSON que queremos añadir en el
@@ -241,36 +222,41 @@ public class Libreria {
      *              añadir nada
      * @return La firma AWT
      */
-    public static String firmar(Key clave, String json) {
+    public static String firmarJWS(Key clave, String json) {
         json = cifrar(json);
         try {
-            JWSHeader header = JWSHeader.parse("{\"alg\": \"ES256\",\n\"b64\": false,\n\"crit\": [\"b64\"]}");
+            JWSHeader header = JWSHeader.parse("{\"alg\": \"RS256\",\n\"b64\": false,\n\"crit\": [\"b64\"]}");
             Payload p = new Payload(json);
             JWSObjectJSON jws = new JWSObjectJSON(p);
             JWSSigner signer = null;
-
             switch (clave.getAlgorithm()) {
                 case "EC" -> signer = new ECDSASigner((ECPrivateKey) clave);
                 case "RSA" -> signer = new RSASSASigner((RSAPrivateKey) clave);
-                default -> throw new UnsupportedOperationException("Caracteristica no desarrollada, la clave debe ser EC o RSA");
+                default ->
+                        throw new UnsupportedOperationException("Caracteristica no desarrollada, la clave debe ser EC o RSA");
             }
             jws.sign(header, signer);
+            JOSEObject jose = new JWSObject(header, p);
+            System.out.println(signer.sign(header, p.toBytes()));
+            System.out.println(Arrays.toString(jose.getParsedParts()));
+            System.out.println((jws.toFlattenedJSONObject()));
+            System.out.println((jws.toGeneralJSONObject()));
             return (jws.toFlattenedJSONObject().get("protected") + ".." + jws.toFlattenedJSONObject().get("signature"));
         } catch (ParseException | JOSEException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static String _firmar(Key clave, String json) {
+    public static String firmarJWT(Key clave, String json) {
         json = cifrar(json);
         String hb = Jwts.builder()
                 .header()
-                .add("alg", clave.getAlgorithm())
-                .add("b64", false)
-                .add("crit", "b64")
+                    .add("alg", clave.getAlgorithm())
+                    .add("b64", false)
+                    .add("crit", "b64")
                 .and()
-                .content(json)
-                .signWith(clave)
+                    .content(json)
+                    .signWith(clave)
                 .compact();
         return hb;
     }
