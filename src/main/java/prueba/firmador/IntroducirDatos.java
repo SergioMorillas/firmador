@@ -158,7 +158,7 @@ public class IntroducirDatos extends javax.swing.JFrame {
                 btnFirmarGenericoActionPerformed();
             }
         } else {
-            JSON = Libreria.tratarJsonTexto(txtPanelJWT.getText());
+            JSON = LibreriaIntroducirDatos.tratarJsonTexto(txtPanelJWT.getText());
             if (comprobarNullJson("Texto vacio")) btnFirmarGenericoActionPerformed();
         }
     }
@@ -169,7 +169,7 @@ public class IntroducirDatos extends javax.swing.JFrame {
                 btnFirmarCompactoActionPerformed();
             }
         } else {
-            JSON = Libreria.tratarJsonTexto(txtPanelJWT.getText());
+            JSON = LibreriaIntroducirDatos.tratarJsonTexto(txtPanelJWT.getText());
             if (comprobarNullJson("Json mal formateado")) btnFirmarCompactoActionPerformed();
         }
     }
@@ -218,13 +218,13 @@ public class IntroducirDatos extends javax.swing.JFrame {
      * puedas pegarlo donde necesites
      */
     private void btnFirmarGenericoActionPerformed() {
-        String JWT = Libreria.firmarJWT(this.clave, JSON);
+        String JWT = LibreriaIntroducirDatos.firmarJWT(this.clave, JSON);
 
         anadirPortapapeles(JWT);
     }
 
     private void btnFirmarCompactoActionPerformed() {
-        String JWT = Libreria.firmarJWS(this.clave, JSON);
+        String JWT = LibreriaIntroducirDatos.firmarJWS(this.clave, JSON);
 
         anadirPortapapeles(JWT);
     }

@@ -48,7 +48,7 @@ public class DatosCertificado extends javax.swing.JFrame {
         this.certificado = certificado;
         initComponents();
         lblNombreCertificado.setText(certificado.getName());
-        ArrayList<String> lista = Libreria.comprobarAlias(certificado);
+        ArrayList<String> lista = LibreriaDatosCertificado.comprobarAlias(certificado);
 
         comboAlias.setModel(llenarCombo(lista));
     }
@@ -66,7 +66,7 @@ public class DatosCertificado extends javax.swing.JFrame {
         this.certificado = certificado;
         initComponents();
         lblNombreCertificado.setText("Certificados del sistema");
-        ArrayList<String> lista = Libreria.comprobarAlias(certificado);
+        ArrayList<String> lista = LibreriaDatosCertificado.comprobarAlias(certificado);
 
         comboAlias.setModel(llenarCombo(lista));
     }
@@ -263,9 +263,9 @@ public class DatosCertificado extends javax.swing.JFrame {
 
         if (certificado instanceof File) {
             System.out.println("Es un fichero");
-            clave = Libreria.clave(alias, contr, (File) certificado);
+            clave = LibreriaDatosCertificado.clave(alias, contr, (File) certificado);
         } else {
-            clave = Libreria.clave(alias, contr);
+            clave = LibreriaDatosCertificado.clave(alias, contr);
         }
         if (clave == null) {
             JOptionPane.showMessageDialog(null,

@@ -140,7 +140,7 @@ public class InterfazSeleccion extends JFrame {
      * especifico y su contraseña en base a los certificados del sistema
      */
     private void busquedaCertificadosSistema() {
-        DatosCertificado dc = new DatosCertificado(Libreria.certificadosSistema());
+        DatosCertificado dc = new DatosCertificado(LibreriaGeneral.certificadosSistema());
         dc.setVisible(true);
         this.dispose();
     }
@@ -181,19 +181,8 @@ public class InterfazSeleccion extends JFrame {
                         break;
                     }
                 }
-            } catch (ClassNotFoundException ex) {
-                java.util.logging.Logger.getLogger(InterfazSeleccion.class.getName()).log(
-                        java.util.logging.Level.SEVERE,
-                        null, ex);
-            } catch (InstantiationException ex) {
-                java.util.logging.Logger.getLogger(InterfazSeleccion.class.getName()).log(
-                        java.util.logging.Level.SEVERE,
-                        null, ex);
-            } catch (IllegalAccessException ex) {
-                java.util.logging.Logger.getLogger(InterfazSeleccion.class.getName()).log(
-                        java.util.logging.Level.SEVERE,
-                        null, ex);
-            } catch (UnsupportedLookAndFeelException ex) {
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
+                     UnsupportedLookAndFeelException ex) {
                 java.util.logging.Logger.getLogger(InterfazSeleccion.class.getName()).log(
                         java.util.logging.Level.SEVERE,
                         null, ex);
