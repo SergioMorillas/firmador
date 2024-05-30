@@ -8,7 +8,9 @@ import com.apicatalog.rdf.RdfNQuad;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.ECDSASigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.util.Base64URL;
 import io.jsonwebtoken.Jwts;
+import net.minidev.json.JSONObject;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -18,9 +20,11 @@ import java.security.MessageDigest;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.time.OffsetDateTime;
+import java.time.Period;
+import java.time.ZoneOffset;
+import java.util.*;
 
 public class LibreriaAnadirJSON {
     /**
@@ -56,7 +60,8 @@ public class LibreriaAnadirJSON {
     public static String firmarJWS(Key clave, String json) {
         json = cifrar(json);
         try {
-            JWSHeader header = JWSHeader.parse("{\"alg\": \"RS256\",\n\"b64\": false,\n\"crit\": [\"b64\"]}");
+            // Si no lo pones en b64 la cabecera aparece desordenada
+            JWSHeader header = JWSHeader.parse(new Base64URL("eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19"));
             Payload p = new Payload(json);
             JWSObjectJSON jws = new JWSObjectJSON(p);
             JWSSigner signer = null;
@@ -72,22 +77,24 @@ public class LibreriaAnadirJSON {
             System.out.println(Arrays.toString(jose.getParsedParts()));
             System.out.println((jws.toFlattenedJSONObject()));
             System.out.println((jws.toGeneralJSONObject()));
-            return (jws.toFlattenedJSONObject().get("protected") + ".." + jws.toFlattenedJSONObject().get("signature"));
+            String credencialJWS = (jws.toFlattenedJSONObject().get("protected") + ".." + jws.toFlattenedJSONObject().get("signature"));
+            return obtenerProof(credencialJWS);
         } catch (ParseException | JOSEException e) {
             throw new RuntimeException(e);
         }
     }
 
     public static String firmarJWT(Key clave, String json) {
+        String hb;
         json = cifrar(json);
-        String hb = Jwts.builder()
+        hb = Jwts.builder()
                 .header()
-                .add("alg", clave.getAlgorithm())
-                .add("b64", false)
-                .add("crit", "b64")
+                    .add("alg", clave.getAlgorithm())
+                    .add("b64", false)
+                    .add("crit", "b64")
                 .and()
-                .content(json)
-                .signWith(clave)
+                    .content(json)
+                    .signWith(clave)
                 .compact();
         return hb;
     }
@@ -113,10 +120,22 @@ public class LibreriaAnadirJSON {
             str = sb.toString();
 
         } catch (JsonLdError e) {
+            System.err.println(e.getMessage());
+            System.err.println(Arrays.toString(e.getStackTrace()));
             throw new RuntimeException(e);
         }
         return str;
     }
+    public static String obtenerProof(String credencialJWS){
+        String ISO_8601 = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+        SimpleDateFormat dateFormat = new SimpleDateFormat(ISO_8601);
+        StringBuilder sb = new StringBuilder("\"proof\":{\n");
 
-
+        sb.append("\t\"type\":\"").append("JsonWebSignature2020").append("\",\n");
+        sb.append("\t\"created\":\"").append(dateFormat.format(Calendar.getInstance().getTime())).append("\",\n");
+        sb.append("\t\"proofPurpose\":\"").append("assertionMethod").append("\",\n");
+        sb.append("\t\"verificationMethod\":\"").append("did:web:arlabdevelopments.com").append("\",\n");
+        sb.append("\t\"jws\":\"").append(credencialJWS).append("\",\n}");
+    return sb.toString();
+    }
 }
